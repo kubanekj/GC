@@ -1,15 +1,16 @@
 package org.grade.calculator;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -41,6 +42,9 @@ public class AddClassActivity extends Activity {
 	private TextView []categoryName, percent;
 	//Buttons allowing the user to exit and clear the form, respectively
 	private Button exit,clear;
+	private String [] cats, percs;
+	private EditText className;
+	private String classNameString;
 
 	/**********************************************
 	 *  Called when the activity is first created. 
@@ -49,6 +53,9 @@ public class AddClassActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.addclassview);
+
+		className = (EditText)findViewById(R.id.classNameText);
+		classNameString = className.getText().toString();
 		//Get the layout so more GUI items can be added in createForm()
 		ll = (LinearLayout)findViewById(R.id.linearLayout1);
 		//Get the spinner so that the user selection can be retrieved
@@ -120,44 +127,105 @@ public class AddClassActivity extends Activity {
 				//Create percent of grade text fields
 				catPercent[i] = new EditText(this);
 				catPercent[i].setLayoutParams(new ViewGroup.LayoutParams(200, LayoutParams.WRAP_CONTENT));
+				catPercent[i].setInputType(InputType.TYPE_CLASS_NUMBER);
 				//Add percent of grade text fields
 				ll.addView(catPercent[i]);
 			}
 			//Add "Clear Form" button
-			ll.addView(clear);
+			ll.addView(clear); 
 			//Add "Add Class" button
 			ll.addView(exit);
 			//set listener for clear button
 			clear.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
 					ll.removeViewsInLayout(4, (ll.getChildCount()-4));
+
 				}
 			});
 			//set listener for exit button
 			exit.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
+					write();
 					//Close activity
 					finish();
 				}
 			});
 		}
 	}
-	public void write(String information){
-		OutputStream os = null;
-		BufferedOutputStream bos;
-		File f = getExternalFilesDir(null); 
+	public void write(){
+
+		File file = null;
+		FileOutputStream f = null;
+		File sdCard = Environment.getExternalStorageDirectory();
+		File dir = new File (sdCard.getAbsolutePath() +"/GC/");
+		dir.mkdir();
+		File full = new File(dir.getAbsolutePath() + "/file3.txt");
+		if(!full.exists()){
+			try {
+				full.createNewFile();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			dir.mkdirs();
+		}
 		try {
-			f.createNewFile();
+			f = new FileOutputStream(full);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		OutputStreamWriter osw = null;
+		osw = new OutputStreamWriter(f);
+		try {
+			osw.write(className.getText().toString());
+			osw.write(":");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		for(int i = 0; i < numCats; i++){
+			try {
+				osw.write(catName[i].getText().toString());
+				osw.write(",");
+				osw.write(catPercent[i].getText().toString());
+				if(i != (numCats-1)){
+					osw.write(";");
+				}else{
+					osw.write("{");
+				}
+
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			osw.flush();
+			osw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			os = new FileOutputStream(f);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		bos = new BufferedOutputStream(os);
+		/*		FileInputStream fIn = openFileInput("samplefile.txt");
+        InputStreamReader isr = new InputStreamReader(fIn);
+         //Prepare a char-Array that will
+         //hold the chars we read back in. 
+        char[] inputBuffer = new char[TESTSTRING.length()];
+        // Fill the Buffer with data from the file
+        isr.read(inputBuffer);
+        // Transform the chars to a String
+        String readString = new String(inputBuffer);
+
+        // Check if we read back the same chars that we had written out
+        boolean isTheSame = TESTSTRING.equals(readString);
+
+        // WOHOO lets Celebrate =)
+        Log.i("File Reading stuff", "success = " + isTheSame);
+
+} catch (IOException ioe) {
+        ioe.printStackTrace();
+}*/
 	}
 }
