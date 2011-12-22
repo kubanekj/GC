@@ -1,13 +1,17 @@
 package org.grade.calculator;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
@@ -45,6 +49,7 @@ public class AddClassActivity extends Activity {
 	private String [] cats, percs;
 	private EditText className;
 	private String classNameString;
+	private String info = "";
 
 	/**********************************************
 	 *  Called when the activity is first created. 
@@ -153,79 +158,50 @@ public class AddClassActivity extends Activity {
 		}
 	}
 	public void write(){
-
-		File file = null;
-		FileOutputStream f = null;
+		FileWriter f = null;
 		File sdCard = Environment.getExternalStorageDirectory();
 		File dir = new File (sdCard.getAbsolutePath() +"/GC/");
 		dir.mkdir();
-		File full = new File(dir.getAbsolutePath() + "/file3.txt");
+		File full = new File(dir.getAbsolutePath() + "/file.txt");
 		if(!full.exists()){
 			try {
 				full.createNewFile();
-			} catch (IOException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
+			} catch (IOException ioe1) {
+				ioe1.printStackTrace();
 			}
 			dir.mkdirs();
 		}
 		try {
-			f = new FileOutputStream(full);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			f = new FileWriter(full, true);
+		} catch (IOException ioe2){
+			ioe2.printStackTrace();
 		}
-		OutputStreamWriter osw = null;
-		osw = new OutputStreamWriter(f);
+		info.concat(className.getText().toString()+ ":");
 		try {
-			osw.write(className.getText().toString());
-			osw.write(":");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			f.write(className.getText().toString());
+			f.write(":");
+		} catch (IOException ioe3) {
+			ioe3.printStackTrace();
 		}
 		for(int i = 0; i < numCats; i++){
 			try {
-				osw.write(catName[i].getText().toString());
-				osw.write(",");
-				osw.write(catPercent[i].getText().toString());
+				f.write(catName[i].getText().toString());
+				f.write(",");
+				f.write(catPercent[i].getText().toString());
 				if(i != (numCats-1)){
-					osw.write(";");
+					f.write(";");
 				}else{
-					osw.write("{");
+					f.write("{");
 				}
-
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException ioe4) {
+				ioe4.printStackTrace();
+			}
+			try {
+				f.flush();
+				f.close();
+			} catch (IOException ioe5) {
+				ioe5.printStackTrace();
 			}
 		}
-		try {
-			osw.flush();
-			osw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*		FileInputStream fIn = openFileInput("samplefile.txt");
-        InputStreamReader isr = new InputStreamReader(fIn);
-         //Prepare a char-Array that will
-         //hold the chars we read back in. 
-        char[] inputBuffer = new char[TESTSTRING.length()];
-        // Fill the Buffer with data from the file
-        isr.read(inputBuffer);
-        // Transform the chars to a String
-        String readString = new String(inputBuffer);
-
-        // Check if we read back the same chars that we had written out
-        boolean isTheSame = TESTSTRING.equals(readString);
-
-        // WOHOO lets Celebrate =)
-        Log.i("File Reading stuff", "success = " + isTheSame);
-
-} catch (IOException ioe) {
-        ioe.printStackTrace();
-}*/
 	}
 }
